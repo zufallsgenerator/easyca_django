@@ -19,9 +19,9 @@ import datetime
 import time
 import logging as log
 
-from easyca.settings import CA_PATH
+from pyssling.settings import CA_PATH
 
-import dev_ssl_ca as dev_ca
+import easyca as dev_ca
 
 
 BASE_URL = "v1/"
@@ -168,7 +168,7 @@ def self_signed_all(request):
     method = request.method
 
     if method == 'POST':
-        dn = dict(cn='Dev Certificate by EasyCA (self-signed)')
+        dn = dict(cn='Dev Certificate by pySSLing (self-signed)')
         res = dev_ca.create_self_signed(dn=dn)
 
         return Response(res)
