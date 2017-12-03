@@ -21,7 +21,7 @@ import logging as log
 
 from pyssling.settings import CA_PATH
 
-import easyca as dev_ca
+import easyca
 
 
 BASE_URL = "v1/"
@@ -60,7 +60,7 @@ def annotate_url(item, request=None, tpl=None, key='url'):
 def ca_all(request):
     """Lists all files readable by the current user"""
     method = request.method
-    ca = dev_ca.CA(CA_PATH)
+    ca = easyca.CA(CA_PATH)
 
     if method == 'POST':
         keys = ['c', 'st', 'l', 'o', 'ou', 'cn', 'email']
@@ -94,7 +94,7 @@ def ca_all(request):
 def csr_all(request):
     """Certificate Signing Request - GET to list, POST to sign"""
     method = request.method
-    ca = dev_ca.CA(CA_PATH)
+    ca = easyca.CA(CA_PATH)
 
     if method == 'POST':
         if "csr" not in request.data:
@@ -126,7 +126,7 @@ def csr_all(request):
 #  @login_required
 def signed_all(request):
     """List all signed certificates"""
-    ca = dev_ca.CA(CA_PATH)
+    ca = easyca.CA(CA_PATH)
     items = ca.list_certificates()
 
     ret = []
@@ -145,7 +145,7 @@ def signed_all(request):
 #  @login_required
 def signed_single(request, serial):
     """View details of a single certificate"""
-    ca = dev_ca.CA(CA_PATH)
+    ca = easyca.CA(CA_PATH)
     ret = ca.get_certificate(serial=serial)
 
 
@@ -169,7 +169,7 @@ def self_signed_all(request):
 
     if method == 'POST':
         dn = dict(cn='Dev Certificate by pySSLing (self-signed)')
-        res = dev_ca.create_self_signed(dn=dn)
+        res = easyca.create_self_signed(dn=dn)
 
         return Response(res)
 #        raise ValueError("Not implemented")
