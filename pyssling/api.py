@@ -26,6 +26,8 @@ import easyca
 
 BASE_URL = "v1/"
 
+ca = easyca.CA(CA_PATH)
+
 
 def annotate_urls(items, request=None, tpl=None, key='url'):
     """
@@ -77,7 +79,6 @@ def api_index(request):
 def ca_all(request):
     """Lists all files readable by the current user"""
     method = request.method
-    ca = easyca.CA(CA_PATH)
 
     if method == 'POST':
         keys = ['c', 'st', 'l', 'o', 'ou', 'cn', 'email']
@@ -111,7 +112,6 @@ def ca_all(request):
 def csr_all(request):
     """Certificate Signing Request - GET to list, POST to sign"""
     method = request.method
-    ca = easyca.CA(CA_PATH)
 
     if method == 'POST':
         if "csr" not in request.data:
@@ -143,7 +143,6 @@ def csr_all(request):
 #  @login_required
 def csr_single(request, serial=None):
     """View details of a single certificate"""
-    ca = easyca.CA(CA_PATH)
     ret = ca.get_request(serial=serial)
 
     if not ret:
@@ -164,7 +163,6 @@ def csr_single(request, serial=None):
 #  @login_required
 def signed_all(request):
     """List all signed certificates"""
-    ca = easyca.CA(CA_PATH)
     items = ca.list_certificates()
 
     ret = []
@@ -183,7 +181,6 @@ def signed_all(request):
 #  @login_required
 def signed_single(request, serial):
     """View details of a single certificate"""
-    ca = easyca.CA(CA_PATH)
     ret = ca.get_certificate(serial=serial)
 
 
