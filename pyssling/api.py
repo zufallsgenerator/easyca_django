@@ -47,11 +47,28 @@ def annotate_urls(items, request=None, tpl=None, key='url'):
         ret.append(item_copy)
     return ret
 
+
 def annotate_url(item, request=None, tpl=None, key='url'):
     """
     Convinience function for a single item, see @annotate_urls
     """
     return annotate_urls([item], request=request, tpl=tpl, key=key)[0]
+
+
+def make_base(request, url):
+    return "http://{}/{}{}".format(request.get_host(), BASE_URL, url)
+
+
+@api_view(['GET'])
+def api_index(request):
+    """API Index"""
+    return Response(dict(
+        endpoints=dict(
+            ca=make_base(request, 'ca'),
+            csr=make_base(request, 'csr'),
+            signed=make_base(request, 'signed'),
+        )
+    ))
 
 
 @api_view(['GET', 'POST'])
@@ -124,6 +141,27 @@ def csr_all(request):
 @api_view(['GET'])
 #@parser_classes((MultiPartParser,))
 #  @login_required
+def csr_single(request, serial=None):
+    """View details of a single certificate"""
+    ca = easyca.CA(CA_PATH)
+    ret = ca.get_request(serial=serial)
+
+    if not ret:
+        raise Http404()
+
+#    ret = []
+#    for name in names:
+#        ret.append({
+#            "id": name
+#        })
+
+#    annotated = annotate_urls(ret, request=request, tpl='signed/{id}')
+
+    return Response(ret)
+
+@api_view(['GET'])
+#@parser_classes((MultiPartParser,))
+#  @login_required
 def signed_all(request):
     """List all signed certificates"""
     ca = easyca.CA(CA_PATH)
@@ -179,13 +217,13 @@ def self_signed_all(request):
     return Response(res)
 
 
-
 urlpatterns = [
+    url(r'^{}$'.format(BASE_URL), api_index),
     url(r'^{}ca/$'.format(BASE_URL), ca_all),
     url(r'^{}signed/$'.format(BASE_URL), signed_all),
     url(r'^{}signed/(?P<serial>[a-fA-F0-9]+)$'.format(BASE_URL), signed_single),
-#    url(r'^{}ca/(?P<item_id>[0-9]+)$'.format(BASE_URL), file_single),
     url(r'^{}self-signed/$'.format(BASE_URL), self_signed_all),
     url(r'^{}csr/$'.format(BASE_URL), csr_all),
+    url(r'^{}csr/(?P<serial>[a-fA-F0-9]+)$'.format(BASE_URL), csr_single),
 
 ]
